@@ -1,28 +1,25 @@
 plugins {
-    id 'fabric-loom' version "1.0-SNAPSHOT" // To use chocoloom, change the version to a commit hash
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'maven-publish'
-    id "org.jetbrains.kotlin.jvm" version "1.6.10"
+    id "fabric-loom" version "${loom_version}"
+    id "legacy-looming" version "${loom_version}" // Version must be the same as fabric-loom's
+    id "maven-publish"
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+base {
+    archivesName = project.archives_base_name
+}
+
 repositories {
-    maven {
-        name = "legacy-fabric"
-        url = "https://maven.legacyfabric.net"
-    }
-    maven { url "https://jitpack.io" }
-    mavenCentral()
+    // Add repositories to retrieve artifacts from in here.
+    // You should only use this when depending on other mods because
+    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
+    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
+    // for more information about repositories.
 }
 
 loom {
-    setIntermediaryUrl('https://maven.legacyfabric.net/net/fabricmc/intermediary/%1$s/intermediary-%1$s-v2.jar')
     // Only needed for versions not available from vanilla launcher by default.
     // customMinecraftManifest.set("https://meta.legacyfabric.net/v2/manifest/${minecraft_version}")
 
@@ -34,63 +31,51 @@ loom {
     // }
 }
 
-import org.gradle.internal.os.OperatingSystem
+legacyLooming {
+    // 	The generation of intermediary to use, default is 1.
+    // 	legacy.yarn() will automatically point at the variant for the set intermediary generation.
+    // 	However do not forget to set the right build number of legacy yarn as they are different per variant.
+    //	intermediaryVersion = 2
 
-project.ext.lwjglVersion = "3.3.1"
-switch (OperatingSystem.current()) {
-    case OperatingSystem.LINUX:
-        project.ext.lwjglNatives = "natives-linux"
-        break
-    case OperatingSystem.WINDOWS:
-        project.ext.lwjglNatives = "natives-windows"
-        break
+    // 	Wether to use Legacy Fabric intermediaries or Upstream/Official FabricMC ones.
+    //	Default to true: use Legacy Fabric intermediaries.
+    // 	If setting to false, don't forget to also set intermediaryVersion to generation 2.
+    //	useLFIntermediary.set(false)
 }
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.legacyfabric:yarn:${project.yarn_mappings}:v2"
+    mappings(legacy.yarn(project.minecraft_version, project.yarn_build))
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-common")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8") // dekotlinify soon :sob:
+    // Legacy Fabric API provides hooks for events, item registration, and more. As most mods will need this, it's included by default.
+    // If you know for a fact you don't, it's not required and can be safely removed.
+    // As of September 2025, available only for intermediary generation 1.
+    // Check availability for your MC version at https://legacyfabric.net/usage.html
+    modImplementation "net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${project.fabric_version}"
+    // If you use LFAPI with MC 1.3.2, 1.4.7 or 1.5.2, uncomment the next line
+    // implementation('com.google.code.gson:gson:2.8.9')
 
-    implementation("org.javassist:javassist:3.29.2-GA")
-    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
-
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-openal"
-    implementation "org.lwjgl:lwjgl-opengl"
-    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
-}
-
-configurations.all {
-    exclude group: "org.lwjgl.lwjgl"
+    // You can retrieve a specific api module using this notation.
+    // modImplementation(legacy.apiModule("legacy-fabric-item-groups-v1", project.fabric_version))
 }
 
 processResources {
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand "version": inputs.properties.version
     }
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile).configureEach {
+    // Ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     it.options.encoding = "UTF-8"
-    if (JavaVersion.current().isJava9Compatible()) it.options.release = 8
-}
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+
+    if (JavaVersion.current().isJava9Compatible()) {
+        it.options.release = 8
     }
 }
 
@@ -99,52 +84,60 @@ java {
     // if it is present.
     // If you remove this line, sources will not be generated.
     withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${inputs.properties.archivesName}"}
     }
-}
-
-shadowJar {
-    minimize {
-        exclude(dependency("org.lwjgl:lwjgl:$lwjglVersion"))
-        exclude(dependency("org.lwjgl:lwjgl-glfw:$lwjglVersion"))
-        exclude(dependency("org.lwjgl:lwjgl-openal:$lwjglVersion"))
-        exclude(dependency("org.lwjgl:lwjgl-opengl:$lwjglVersion"))
-    }
-    dependencies {
-        include(dependency("org.jetbrains.kotlin:kotlin-stdlib"))
-        include(dependency("org.jetbrains.kotlin:kotlin-stdlib-common"))
-        include(dependency("org.jetbrains.kotlin:kotlin-stdlib-jdk7"))
-        include(dependency("org.jetbrains.kotlin:kotlin-stdlib-jdk8"))
-        include(dependency("org.javassist:javassist:3.29.2-GA"))
-
-        include(dependency("org.lwjgl:lwjgl:$lwjglVersion"))
-        include(dependency("org.lwjgl:lwjgl-glfw:$lwjglVersion"))
-        include(dependency("org.lwjgl:lwjgl-openal:$lwjglVersion"))
-        include(dependency("org.lwjgl:lwjgl-opengl:$lwjglVersion"))
-    }
-}
-
-task remapShadowJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: shadowJar) {
-    input = shadowJar.archiveFile
-    archiveFileName = "${archivesBaseName}-${project.version}-all-remapped.jar"
-    addNestedDependencies = false
 }
 
 // configure the maven publication
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
             from components.java
         }
     }
 
-    // select the repositories you want to publish to
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // uncomment to publish to the local maven
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
         mavenLocal()
     }
+}
+
+project.ext.lwjglVersion = "3.4.1"
+project.ext.lwjglNatives = "natives-windows"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    include(implementation "org.lwjgl:lwjgl")
+    include(implementation "org.lwjgl:lwjgl-glfw")
+    include(implementation "org.lwjgl:lwjgl-openal")
+    include(implementation "org.lwjgl:lwjgl-opengl")
+    include(implementation "org.lwjgl:lwjgl::$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-glfw::$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-openal::$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives")
+
+    implementation("org.javassist:javassist:3.29.2-GA")
+}
+
+configurations.configureEach {
+    exclude group: "org.lwjgl.lwjgl"
 }

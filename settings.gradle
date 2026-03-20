@@ -1,13 +1,14 @@
 pluginManagement {
 	repositories {
 		maven {
-			name = 'Fabric'
-			url = 'https://maven.fabricmc.net/'
+			name = "Fabric"
+			url = "https://maven.fabricmc.net/"
 		}
+		maven {
+			name = "legacy-fabric"
+			url = "https://maven.legacyfabric.net/"
+		}
+		mavenCentral()
 		gradlePluginPortal()
- 		maven {
-			name = 'Jitpack'
-			url = 'https://jitpack.io'
-		}
 	}
 }
