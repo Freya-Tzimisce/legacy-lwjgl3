@@ -147,7 +147,7 @@ public final class Display {
 		GLFW.glfwSwapBuffers(handle);
 	}
 
-	public static void create(@Nullable PixelFormat pixelFormat) throws LWJGLException {
+	public static void create(@NotNull PixelFormat pixelFormat) throws LWJGLException {
 		// Setup an error callback. The default implementation
 		GLFWErrorCallback.createPrint(System.err).set();
 		if (!GLFW.glfwInit()) {
@@ -155,6 +155,12 @@ public final class Display {
 		} else {
 			// Configure GLFW
 			GLFW.glfwDefaultWindowHints();
+
+			GLFW.glfwWindowHint(GLFW.GLFW_ALPHA_BITS, pixelFormat.getAlphaBits());
+			GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, pixelFormat.getDepthBits());
+			GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, pixelFormat.getStencilBits());
+			GLFW.glfwWindowHint(GLFW.GLFW_STEREO, pixelFormat.isStereo() ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
+
 			GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, 0);
 			GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, resizable ? 1 : 0);
 			handle =
