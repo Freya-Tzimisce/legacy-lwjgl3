@@ -130,12 +130,12 @@ dependencies {
     include(implementation "org.lwjgl:lwjgl-glfw")
     include(implementation "org.lwjgl:lwjgl-openal")
     include(implementation "org.lwjgl:lwjgl-opengl")
-    include(implementation "org.lwjgl:lwjgl::$lwjglNatives")
-    include(implementation "org.lwjgl:lwjgl-glfw::$lwjglNatives")
-    include(implementation "org.lwjgl:lwjgl-openal::$lwjglNatives")
-    include(implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
 
-    implementation("org.javassist:javassist:3.29.2-GA")
+    include(implementation("org.javassist:javassist:3.29.2-GA"))
 }
 
 configurations.configureEach {
