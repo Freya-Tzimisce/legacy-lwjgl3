@@ -11,9 +11,9 @@
     "moehreag (updating, fixing)"
   ],
   "contact": {
-    "sources": "https://github.com/Zarzelcow/legacy-lwjgl3"
+    "sources": "https://github.com/Freya-Tzimisce/legacy-lwjgl3"
   },
-  "license": "BSD-Zero",
+  "license": "LGPL-2.1-only",
   "icon": "assets/legacy-lwjgl3/icon.png",
   "environment": "client",
   "entrypoints": {

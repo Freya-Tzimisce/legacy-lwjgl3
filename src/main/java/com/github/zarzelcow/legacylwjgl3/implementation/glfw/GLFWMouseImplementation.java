@@ -1,10 +1,10 @@
 package com.github.zarzelcow.legacylwjgl3.implementation.glfw;
 
-import org.lwjgl.glfw.*;
 import com.github.zarzelcow.legacylwjgl3.implementation.input.MouseImplementation;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.EventQueue;
+import org.lwjgl.glfw.*;
+import org.lwjglx.input.Mouse;
+import org.lwjglx.opengl.Display;
+import org.lwjglx.input.EventQueue;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
