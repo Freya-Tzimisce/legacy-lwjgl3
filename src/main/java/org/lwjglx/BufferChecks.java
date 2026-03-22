@@ -64,8 +64,9 @@ public class BufferChecks {
             for (int i = buf.position(); i < buf.limit(); i++) {
                 if (buf.get(i) == 0) nullFound++;
             }
-
-            if (nullFound < count) throw new IllegalArgumentException("Missing null termination");
+            if (nullFound < count) {
+                throw new IllegalArgumentException("Missing null termination");
+            }
         }
     }
 
@@ -91,12 +92,12 @@ public class BufferChecks {
     }
 
     public static void checkNotNull(Object o) {
-        if (LWJGLUtil.CHECKS && o == null) throw new IllegalArgumentException("Null argument");
+        if (LWJGLUtil.CHECKS && o == null) {
+            throw new IllegalArgumentException("Null argument");
+        }
     }
 
-    /**
-     * Helper methods to ensure a buffer is direct (and, implicitly, non-null).
-     */
+    /** Helper methods to ensure a buffer is direct (and, implicitly, non-null). */
     public static void checkDirect(ByteBuffer buf) {
         if (LWJGLUtil.CHECKS && !buf.isDirect()) {
             throw new IllegalArgumentException("ByteBuffer is not direct");
@@ -147,7 +148,8 @@ public class BufferChecks {
      */
     private static void throwBufferSizeException(Buffer buf, int size) {
         throw new IllegalArgumentException(
-                "Number of remaining buffer elements is " + buf.remaining()
+                "Number of remaining buffer elements is "
+                        + buf.remaining()
                         + ", must be at least "
                         + size
                         + ". Because at most "

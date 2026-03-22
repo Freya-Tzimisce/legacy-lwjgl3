@@ -17,7 +17,7 @@ public class Sys {
 
     static {
         try {
-            Class<?> debug = Class.forName("org.lwjglx.debug.org.lwjgl.glfw.GLFW");
+            Class<?> debug = Class.forName("org.lwjgl.glfw.GLFW");
             debug.getMethod("glfwInit").invoke((Object) null);
         } catch (Throwable ignored) {
             if (!glfwInit()) {

@@ -3,7 +3,7 @@ package com.github.zarzelcow.legacylwjgl3;
 import java.nio.IntBuffer;
 
 import org.apache.commons.lang3.Validate;
-import org.lwjgl.LWJGLException;
+import org.lwjglx.LWJGLException;
 import org.lwjgl.openal.ALC;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALCCapabilities;

@@ -192,7 +192,8 @@ public class WaveData {
         try {
             int available = ais.available();
             if (available <= 0) {
-                available = ais.getFormat().getChannels() * (int) ais.getFrameLength()
+                available = ais.getFormat().getChannels()
+                        * (int) ais.getFrameLength()
                         * ais.getFormat().getSampleSizeInBits()
                         / 8;
             }

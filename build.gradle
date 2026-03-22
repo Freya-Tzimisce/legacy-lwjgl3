@@ -130,10 +130,12 @@ dependencies {
     include(implementation "org.lwjgl:lwjgl-glfw")
     include(implementation "org.lwjgl:lwjgl-openal")
     include(implementation "org.lwjgl:lwjgl-opengl")
+    include(implementation "org.lwjgl:lwjgl-stb")
     include(implementation "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
     include(implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
     include(implementation "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives")
     include(implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
+    include(implementation "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives")
 
     include(implementation("org.javassist:javassist:3.29.2-GA"))
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")

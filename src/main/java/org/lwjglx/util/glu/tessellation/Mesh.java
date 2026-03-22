@@ -695,7 +695,8 @@ class Mesh {
             assert (e.Lnext.Onext.Sym == e);
             assert (e.Onext.Sym.Lnext == e);
         }
-        assert (e.Sym.next == ePrev.Sym && e.Sym == mesh.eHeadSym
+        assert (e.Sym.next == ePrev.Sym
+                && e.Sym == mesh.eHeadSym
                 && e.Sym.Sym == e
                 && e.Org == null
                 && e.Sym.Org == null

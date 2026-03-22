@@ -33,17 +33,56 @@ import org.lwjglx.BufferUtils;
  */
 public class MipMap extends Util {
 
+    private static final ThreadLocal<PixelStoreState> pixelStoreState = new ThreadLocal<>() {
+
+        @Override
+        protected PixelStoreState initialValue() {
+            return new PixelStoreState();
+        }
+    };
+
     /**
-     * Method gluBuild2DMipmaps
+     * gluBuild2DMipmaps builds a series of prefiltered 2D texture maps of decreasing resolution. Mipmaps can be used so
+     * that textures don't appear aliased.
+     * <br>
+     * A return value of 0 indicates success. Otherwise a GLU error code is returned (see gluErrorString).
+     * <br>
+     * gluBuild2DMipmaps first check whether width and height of data are both powers of 2. If not, gluBuild2DMipmaps
+     * scales a copy of data up or down to the nearest power of 2. This copy is then used as the base for subsequent
+     * mipmapping operations. For example, if width is 57 and height is 23, then a copy of data scales up to 64 and down
+     * to 16, respectively, before mipmapping takes place. (If width or height is exactly between powers of 2, the copy
+     * of data is scaled upward.)
+     * <br>
+     * If the GL version is 1.1 or greater, gluBuild2DMipmaps then uses proxy textures (see glTexImage1D) to determine
+     * whether there's enough room for the requested texture in the implementation. If not, width is halved (and halved
+     * again) until it fits.
+     * <br>
+     * gluBuild2DMipmaps then uses proxy textures (see glTexImage2D) to determine if the implementation can store the
+     * requested texture in texture memory. If not, both dimensions are continually halved until it fits.
+     * <br>
+     * Next, gluBuild2DMipmaps builds a series of images; it halves a copy of type (or a scaled version of type, if
+     * necessary) along both dimensions until size 1x1 is reached. At each level, each texel in the halved mipmap is an
+     * average of the corresponding four texels in the larger mipmap. (In the case of rectangular images, halving the
+     * images repeatedly eventually results in an nx1 or 1xn configuration. Here, two texels are averaged instead.)
+     * <br>
+     * glTexImage2D is called to load each of these images by level. If width and height are both powers of 2 which fit
+     * in the implementation, level 0 is a copy of data, and the highest level is log2(max(width, height)). For example,
+     * if width is 64 and height is 16, the following mipmaps are built: 64x16, 32x8, 16x4, 8x2, 4x1, 2x1 and 1x1. These
+     * correspond to levels 0 through 6, respectively.
+     * <br>
+     * See the glTexImage1D reference page for a description of the acceptable values for format. See the glDrawPixels
+     * reference page for a description of the acceptable values for type
      *
-     * @param target
-     * @param components
-     * @param width
-     * @param height
-     * @param format
-     * @param type
-     * @param data
-     * @return int
+     * @param target     Specifies the target texture. Must be GL_TEXTURE_2D
+     * @param components Specifies the number of color components in the texture. Must be 1, 2, 3, or 4
+     * @param width      Specifies the width and height, respectively, of the texture image
+     * @param height     Specifies the width and height, respectively, of the texture image
+     * @param format     Specifies the format of the pixel data. Must be one of: GL_COLOR_INDEX, GL_RED, GL_GREEN,
+     *                   GL_BLUE, GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE, and GL_LUMINANCE_ALPHA
+     * @param type       Specifies the data type for data. Must be one of: GL_UNSIGNED_BYTE, GL_BYTE, GL_BITMAP,
+     *                   GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT, GL_INT, or GL_FLOAT
+     * @param data       Specifies a pointer to the image data in memory
+     * @return int A return value of 0 indicates success. Otherwise, a GLU error code is returned (see gluErrorString).
      */
     public static int gluBuild2DMipmaps(final int target, final int components, final int width, final int height,
             final int format, final int type, final ByteBuffer data) {
@@ -59,6 +98,16 @@ public class MipMap extends Util {
 
         int h = nearestPower(height);
         if (h > maxSize) h = maxSize;
+
+        // Get current glPixelStore state
+        PixelStoreState pss = pixelStoreState.get();
+        pss.load();
+
+        // set pixel packing
+        glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+        glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
 
         ByteBuffer image;
         int retVal = 0;
@@ -108,6 +157,9 @@ public class MipMap extends Util {
             h = newH;
             level++;
         }
+
+        // Restore original glPixelStore state
+        pss.save();
 
         return retVal;
     }

@@ -1,4 +1,4 @@
-package com.github.zarzelcow.legacylwjgl3.implementation.input;
+package com.github.zarzelcow.legacylwjgl3.impl.input;
 
 /**
  * @author Zarzelcow

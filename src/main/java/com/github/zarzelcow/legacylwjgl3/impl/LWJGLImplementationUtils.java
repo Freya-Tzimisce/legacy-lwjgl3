@@ -1,9 +1,9 @@
-package com.github.zarzelcow.legacylwjgl3.implementation;
+package com.github.zarzelcow.legacylwjgl3.impl;
 
-import com.github.zarzelcow.legacylwjgl3.implementation.glfw.GLFWKeyboardImplementation;
-import com.github.zarzelcow.legacylwjgl3.implementation.glfw.GLFWMouseImplementation;
-import com.github.zarzelcow.legacylwjgl3.implementation.input.CombinedInputImplementation;
-import com.github.zarzelcow.legacylwjgl3.implementation.input.InputImplementation;
+import com.github.zarzelcow.legacylwjgl3.impl.glfw.GLFWKeyboardImplementation;
+import com.github.zarzelcow.legacylwjgl3.impl.glfw.GLFWMouseImplementation;
+import com.github.zarzelcow.legacylwjgl3.impl.input.CombinedInputImplementation;
+import com.github.zarzelcow.legacylwjgl3.impl.input.InputImplementation;
 
 /**
  * @author Zarzelcow

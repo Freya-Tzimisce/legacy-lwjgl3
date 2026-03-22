@@ -1,4 +1,4 @@
-package com.github.zarzelcow.legacylwjgl3.implementation.input;
+package com.github.zarzelcow.legacylwjgl3.impl.input;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
